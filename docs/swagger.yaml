@@ -1,0 +1,588 @@
+basePath: /api/v1
+definitions:
+  models.CreateOrder:
+    properties:
+      cashout_number:
+        type: integer
+      customer:
+        type: string
+      lines_id:
+        items:
+          type: integer
+        type: array
+      total:
+        description: In cents, with VAT
+        type: integer
+    required:
+    - cashout_number
+    - customer
+    - lines_id
+    - total
+    type: object
+  models.CreateOrderLine:
+    properties:
+      price:
+        description: In Cents, with VAT
+        type: integer
+      product_id:
+        type: integer
+      quantity:
+        description: decimal.NewFromString("136.02")
+        type: number
+      total:
+        description: In Cents
+        type: integer
+      vat:
+        description: '(ex: 2100 for 21.00%)'
+        type: integer
+    required:
+    - price
+    - product_id
+    - quantity
+    - total
+    - vat
+    type: object
+  models.CreateProducts:
+    properties:
+      barcode_number:
+        type: string
+      name:
+        type: string
+      price:
+        description: In cents, with VAT
+        type: integer
+      stock:
+        type: number
+      vat:
+        description: '(ex: 2100 for 21.00%)'
+        type: integer
+    required:
+    - barcode_number
+    - name
+    - price
+    - stock
+    - vat
+    type: object
+  models.LoginUser:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.Order:
+    properties:
+      cashout_number:
+        type: integer
+      created_at:
+        type: string
+      customer:
+        type: string
+      id:
+        type: integer
+      lines_id:
+        items:
+          type: integer
+        type: array
+      total:
+        description: In cents, with VAT
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.OrderLine:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      price:
+        description: In Cents, with VAT
+        type: integer
+      product_id:
+        type: integer
+      quantity:
+        description: decimal.NewFromString("136.02")
+        type: number
+      total:
+        description: In Cents, with VAT
+        type: integer
+      updated_at:
+        type: string
+      vat:
+        description: '(ex: 2100 for 21.00%)'
+        type: integer
+    type: object
+  models.Product:
+    properties:
+      barcode_number:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        description: In cents, with VAT
+        type: integer
+      stock:
+        description: decimal.NewFromString("136.02")
+        type: number
+      updated_at:
+        type: string
+      vat:
+        description: '(ex: 2100 for 21.00%)'
+        type: integer
+    type: object
+  models.UpdateOrder:
+    properties:
+      cashout_number:
+        type: integer
+      customer:
+        type: string
+      lines_id:
+        items:
+          type: integer
+        type: array
+      total:
+        description: In cents, with VAT
+        type: integer
+    type: object
+  models.UpdateOrderLine:
+    properties:
+      price:
+        description: In Cents, with VAT
+        type: integer
+      product_id:
+        type: integer
+      quantity:
+        description: decimal.NewFromString("136.02")
+        type: number
+      total:
+        description: In Cents, with VAT
+        type: integer
+      vat:
+        description: '(ex: 2100 for 21.00%)'
+        type: integer
+    type: object
+  models.UpdateProduct:
+    properties:
+      barcode_number:
+        type: string
+      name:
+        type: string
+      price:
+        description: In cents, with VAT
+        type: integer
+      stock:
+        type: number
+      vat:
+        description: '(ex: 2100 for 21.00%)'
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8001
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API server used for POS TUI.
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-git clone TODO: CHANGE'
+  termsOfService: http://swagger.io/terms/
+  title: Swagger POS TUI API
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping example
+      tags:
+      - example
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user using username and password, returns a JWT
+        token if successful
+      parameters:
+      - description: User login object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT Token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Authenticate a user
+      tags:
+      - user
+  /order_lines:
+    post:
+      consumes:
+      - application/json
+      description: Create a new orderLine with the given input data
+      parameters:
+      - description: Create orderLine object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateOrderLine'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created orderLine
+          schema:
+            $ref: '#/definitions/models.OrderLine'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Create a new orderLine
+      tags:
+      - orderLines
+  /order_lines/{id}:
+    delete:
+      description: Delete the orderLine with the given ID
+      parameters:
+      - description: OrderLine ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted orderLine
+          schema:
+            type: string
+        "404":
+          description: orderLine not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Delete a orderLine by ID
+      tags:
+      - orderLines
+    get:
+      description: Get details of a orderLine by its ID
+      parameters:
+      - description: OrderLine ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved orderLine
+          schema:
+            $ref: '#/definitions/models.OrderLine'
+        "404":
+          description: OrderLine not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Find a orderLine by ID
+      tags:
+      - orderLines
+    put:
+      consumes:
+      - application/json
+      description: Update the orderLine details for the given ID
+      parameters:
+      - description: OrderLine ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update orderLine object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateOrderLine'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated orderLine
+          schema:
+            $ref: '#/definitions/models.OrderLine'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: orderLine not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Update a orderLine by ID
+      tags:
+      - orderLines
+  /products:
+    get:
+      description: Get a list of all products with optional pagination
+      parameters:
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: Limit for paginaCreateProducttion
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved list of products
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+      security:
+      - JwtAuth: []
+      summary: Get all products with pagination
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create new products with the given input data
+      parameters:
+      - description: Create product object
+        in: body
+        name: input
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.CreateProducts'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created product
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Create new products
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Delete the product with the given ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted product
+          schema:
+            type: string
+        "404":
+          description: product not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Delete a product by ID
+      tags:
+      - products
+    get:
+      description: Get details of a product by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved product
+          schema:
+            $ref: '#/definitions/models.Product'
+        "404":
+          description: Product not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Find a product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update the product details for the given ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update product object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated product
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: product not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Update a product by ID
+      tags:
+      - products
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the given username and password
+      parameters:
+      - description: User registration object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully registered
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Register a new user
+      tags:
+      - user
+  /resetPassword:
+    post:
+      consumes:
+      - application/json
+      description: Resets a user password with username and password
+      parameters:
+      - description: User registration object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Successfully reset password
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Reset user password
+      tags:
+      - user
+securityDefinitions:
+  JwtAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

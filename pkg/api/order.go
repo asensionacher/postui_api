@@ -43,7 +43,7 @@ func NewOrderRepository(db database.Database, ctx *context.Context) *orderReposi
 // @Success 201 {object} models.Order "Successfully created order"
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
-// @Router /order_lines [post]
+// @Router /orders [post]
 func (r *orderRepository) CreateOrder(c *gin.Context) {
 	appCtx, exists := c.MustGet("appCtxOrder").(*orderRepository)
 	if !exists {
@@ -74,7 +74,7 @@ func (r *orderRepository) CreateOrder(c *gin.Context) {
 // @Param id path string true "Order ID"
 // @Success 200 {object} models.Order "Successfully retrieved order"
 // @Failure 404 {string} string "Order not found"
-// @Router /order_lines/{id} [get]
+// @Router /orders/{id} [get]
 func (r *orderRepository) FindOrder(c *gin.Context) {
 	var order models.Order
 
@@ -98,7 +98,7 @@ func (r *orderRepository) FindOrder(c *gin.Context) {
 // @Success 200 {object} models.Order "Successfully updated order"
 // @Failure 400 {string} string "Bad Request"
 // @Failure 404 {string} string "order not found"
-// @Router /order_lines/{id} [put]
+// @Router /orders/{id} [put]
 func (r *orderRepository) UpdateOrder(c *gin.Context) {
 	var order models.Order
 	var input models.UpdateOrder
@@ -127,7 +127,7 @@ func (r *orderRepository) UpdateOrder(c *gin.Context) {
 // @Param id path string true "Order ID"
 // @Success 204 {string} string "Successfully deleted order"
 // @Failure 404 {string} string "order not found"
-// @Router /order_lines/{id} [delete]
+// @Router /orders/{id} [delete]
 func (r *orderRepository) DeleteOrder(c *gin.Context) {
 	var order models.Order
 

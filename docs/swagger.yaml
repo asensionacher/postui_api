@@ -368,6 +368,123 @@ paths:
       summary: Update a orderLine by ID
       tags:
       - orderLines
+  /orders:
+    post:
+      consumes:
+      - application/json
+      description: Create a new order with the given input data
+      parameters:
+      - description: Create order object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateOrder'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created order
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Create a new order
+      tags:
+      - orders
+  /orders/{id}:
+    delete:
+      description: Delete the order with the given ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted order
+          schema:
+            type: string
+        "404":
+          description: order not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Delete an order by ID
+      tags:
+      - orders
+    get:
+      description: Get details of an order by its ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved order
+          schema:
+            $ref: '#/definitions/models.Order'
+        "404":
+          description: Order not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Find an order by ID
+      tags:
+      - orders
+    put:
+      consumes:
+      - application/json
+      description: Update the order details for the given ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update order object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated order
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: order not found
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Update an order by ID
+      tags:
+      - orders
   /products:
     get:
       description: Get a list of all products with optional pagination

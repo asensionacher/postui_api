@@ -66,6 +66,8 @@ func NewDatabase() *gorm.DB {
 	}
 	database.AutoMigrate(&models.Product{})
 	database.AutoMigrate(&models.User{})
+	database.AutoMigrate(&models.Order{})
+	database.AutoMigrate(&models.OrderLine{})
 
 	middleware.CreateAdmin(database)
 

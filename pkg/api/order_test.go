@@ -9,6 +9,8 @@ import (
 	"postui_api/pkg/database"
 	"postui_api/pkg/models"
 	"testing"
+	"github.com/lib/pq"
+
 
 	"gorm.io/gorm"
 
@@ -69,7 +71,7 @@ func TestCreateOrder(t *testing.T) {
 		Vat:       2100,
 		Total:     121,
 	}
-	var lines_id []uint
+	var lines_id pq.Int64Array
 	lines_id = append(lines_id, line1.ID)
 	lines_id = append(lines_id, line2.ID)
 
@@ -134,7 +136,7 @@ func TestFindOrder(t *testing.T) {
 		Vat:       2100,
 		Total:     121,
 	}
-	var lines_id []uint
+	var lines_id pq.Int64Array
 	lines_id = append(lines_id, line1.ID)
 	lines_id = append(lines_id, line2.ID)
 
@@ -229,7 +231,7 @@ func TestDeleteOrder(t *testing.T) {
 		Vat:       2100,
 		Total:     121,
 	}
-	var lines_id []uint
+	var lines_id pq.Int64Array
 	lines_id = append(lines_id, line1.ID)
 	lines_id = append(lines_id, line2.ID)
 

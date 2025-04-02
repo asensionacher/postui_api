@@ -21,9 +21,7 @@ import (
 func ContextMiddleware(productRepository ProductRepository, orderRepository OrderRepository, orderLineRepository OrderLineRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("appCtxProduct", productRepository)
-		c.Next()
 		c.Set("appCtxOrder", orderRepository)
-		c.Next()
 		c.Set("appCtxOrderLine", orderLineRepository)
 		c.Next()
 	}

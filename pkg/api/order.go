@@ -7,6 +7,7 @@ import (
 	"postui_api/pkg/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 type OrderRepository interface {
@@ -43,7 +44,7 @@ func NewOrderRepository(db database.Database, ctx *context.Context) *orderReposi
 // @Success 201 {object} models.Order "Successfully created order"
 // @Failure 400 {string} string "Bad Request"
 // @Failure 401 {string} string "Unauthorized"
-// @Router /orders [post]
+// @Router /orders [post]integer
 func (r *orderRepository) CreateOrder(c *gin.Context) {
 	appCtx, exists := c.MustGet("appCtxOrder").(*orderRepository)
 	if !exists {
@@ -58,7 +59,7 @@ func (r *orderRepository) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	order := models.Order{Vendor: input.Vendor, Total: input.Total, LinesID: input.LinesID, CashoutNumber: input.CashoutNumber}
+	order := models.Order{Vendor: input.Vendor, Total: input.Total, LinesID: pq.Int64Array(input.LinesID), CashoutNumber: input.CashoutNumber}
 
 	appCtx.DB.Create(&order)
 
@@ -113,7 +114,7 @@ func (r *orderRepository) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	r.DB.Model(&order).Updates(models.Order{Vendor: input.Vendor, Total: input.Total, LinesID: input.LinesID, CashoutNumber: input.CashoutNumber})
+	r.DB.Model(&order).Updates(models.Order{Vendor: input.Vendor, Total: input.Total, LinesID: pq.Int64Array(input.LinesID), CashoutNumber: input.CashoutNumber})
 
 	c.JSON(http.StatusOK, gin.H{"data": order})
 }

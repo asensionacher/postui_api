@@ -66,7 +66,7 @@ func (r *productRepository) Healthcheck(c *gin.Context) {
 func (r *productRepository) FindProducts(c *gin.Context) {
 	var products []models.Product
 
-	// Get query paramsBarcodeNumber
+	// Get query params
 	offsetQuery := c.DefaultQuery("offset", "0")
 	limitQuery := c.DefaultQuery("limit", "10")
 
@@ -76,6 +76,7 @@ func (r *productRepository) FindProducts(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset format"})
 		return
 	}
+	var total_items int64
 
 	limit, err := strconv.Atoi(limitQuery)
 	if err != nil {
@@ -83,9 +84,11 @@ func (r *productRepository) FindProducts(c *gin.Context) {
 		return
 	}
 
+	r.DB.Model(&models.Product{}).Count(&total_items)
+	total_pages := total_items / int64(limit)
+
 	// Create a cache key based on query params
 	cacheKey := "products_offset_" + offsetQuery + "_limit_" + limitQuery
-
 	// Try fetching the data from Redis first
 	cachedProducts, err := r.RedisClient.Get(*r.Ctx, cacheKey).Result()
 	if err == nil {
@@ -94,12 +97,24 @@ func (r *productRepository) FindProducts(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal cached data"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"data": products})
+		c.JSON(http.StatusOK, gin.H{
+			"data": products,
+			"pagination": gin.H{
+				"total_items": total_items,
+				"page":        offset,
+				"limit":       limit,
+				"total_pages": total_pages,
+			},
+		})
 		return
 	}
 
-	// If cache missed, fetch data from the database
-	r.DB.Offset(offset).Limit(limit).Find(&products)
+	// If cache missed, fetch data from the database with proper pagination
+	result := r.DB.Offset(offset).Limit(limit).Find(&products)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch products"})
+		return
+	}
 
 	// Serialize products object and store it in Redis
 	serializedProducts, err := json.Marshal(products)
@@ -107,13 +122,23 @@ func (r *productRepository) FindProducts(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal data"})
 		return
 	}
-	err = r.RedisClient.Set(*r.Ctx, cacheKey, serializedProducts, time.Minute).Err() // Here TTL is set to one hour
+
+	// Set cache with expiration time
+	err = r.RedisClient.Set(*r.Ctx, cacheKey, serializedProducts, time.Minute).Err()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to set cache"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": products})
+	c.JSON(http.StatusOK, gin.H{
+		"data": products,
+		"pagination": gin.H{
+			"total_items": total_items,
+			"page":        offset,
+			"limit":       limit,
+			"total_pages": total_pages,
+		},
+	})
 }
 
 // CreateProducts godoc

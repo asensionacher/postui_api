@@ -51,18 +51,22 @@ func (r *orderLineRepository) CreateOrderLine(c *gin.Context) {
 		return
 	}
 
-	var input models.CreateOrderLine
+	var inputs []models.CreateOrderLine
 
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBindJSON(&inputs); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	var orderLines []models.OrderLine
 
-	orderLine := models.OrderLine{ProductID: input.ProductID, Quantity: input.Quantity, Price: input.Price, Vat: input.Vat, Total: input.Total}
+	for _, input := range inputs {
+		orderLine := models.OrderLine{ProductID: input.ProductID, Quantity: input.Quantity, Price: input.Price, Vat: input.Vat, Total: input.Total}
+		orderLines = append(orderLines, orderLine)
+	}
 
-	appCtx.DB.Create(&orderLine)
+	appCtx.DB.Create(&orderLines)
 
-	c.JSON(http.StatusCreated, gin.H{"data": orderLine})
+	c.JSON(http.StatusCreated, gin.H{"data": orderLines})
 }
 
 // FindOrderLine godoc

@@ -151,6 +151,8 @@ definitions:
       total:
         description: In cents, with VAT
         type: integer
+    required:
+    - lines_id
     type: object
   models.UpdateOrderLine:
     properties:

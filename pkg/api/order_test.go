@@ -9,8 +9,8 @@ import (
 	"postui_api/pkg/database"
 	"postui_api/pkg/models"
 	"testing"
-	"github.com/lib/pq"
 
+	"github.com/lib/pq"
 
 	"gorm.io/gorm"
 
@@ -72,8 +72,8 @@ func TestCreateOrder(t *testing.T) {
 		Total:     121,
 	}
 	var lines_id pq.Int64Array
-	lines_id = append(lines_id, line1.ID)
-	lines_id = append(lines_id, line2.ID)
+	lines_id = append(lines_id, int64(line1.ID))
+	lines_id = append(lines_id, int64(line2.ID))
 
 	inputOrders := models.CreateOrder{Vendor: "username", Total: 1000, LinesID: lines_id, CashoutNumber: 1}
 
@@ -137,8 +137,8 @@ func TestFindOrder(t *testing.T) {
 		Total:     121,
 	}
 	var lines_id pq.Int64Array
-	lines_id = append(lines_id, line1.ID)
-	lines_id = append(lines_id, line2.ID)
+	lines_id = append(lines_id, int64(line1.ID))
+	lines_id = append(lines_id, int64(line2.ID))
 
 	expectedOrder := models.Order{
 		ID:            1,
@@ -232,8 +232,8 @@ func TestDeleteOrder(t *testing.T) {
 		Total:     121,
 	}
 	var lines_id pq.Int64Array
-	lines_id = append(lines_id, line1.ID)
-	lines_id = append(lines_id, line2.ID)
+	lines_id = append(lines_id, int64(line1.ID))
+	lines_id = append(lines_id, int64(line2.ID))
 
 	existingOrder := models.Order{
 		ID:            1,

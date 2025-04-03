@@ -1005,6 +1005,9 @@ const docTemplate = `{
         },
         "models.UpdateOrder": {
             "type": "object",
+            "required": [
+                "lines_id"
+            ],
             "properties": {
                 "cashout_number": {
                     "type": "integer"

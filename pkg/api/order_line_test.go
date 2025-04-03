@@ -51,7 +51,9 @@ func TestCreateOrderLine(t *testing.T) {
 
 	// Example data for the test
 	quantity, _ := decimal.NewFromString("100")
-	inputOrderLines := models.CreateOrderLine{ProductID: 1, Quantity: quantity, Price: 100, Vat: 2100, Total: 2}
+	inputOrderLines := []models.CreateOrderLine{
+		{ProductID: 1, Quantity: quantity, Price: 100, Vat: 2100, Total: 2},
+	}
 
 	requestBody, err := json.Marshal(inputOrderLines)
 	if err != nil {
@@ -59,7 +61,7 @@ func TestCreateOrderLine(t *testing.T) {
 	}
 
 	// Set up database mock to simulate successful orderLine creation
-	mockDB.EXPECT().Create(gomock.Any()).DoAndReturn(func(orderLine *models.OrderLine) *gorm.DB {
+	mockDB.EXPECT().Create(gomock.Any()).DoAndReturn(func(orderLine *[]models.OrderLine) *gorm.DB {
 		// Normally, you might simulate setting an ID or other fields modified by the DB
 		return &gorm.DB{Error: nil}
 	})

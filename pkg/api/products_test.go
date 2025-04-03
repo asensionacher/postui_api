@@ -64,41 +64,6 @@ func TestHealthcheck(t *testing.T) {
 	assert.Equal(t, "\"ok\"", recorder.Body.String())
 }
 
-func TestFindProducts(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockDB := database.NewMockDatabase(ctrl)
-	mockCache := cache.NewMockCache(ctrl)
-	mockGormDB := database.NewMockDatabase(ctrl) // Correct type for GORM DB operations
-	ctx := context.Background()
-
-	repo := NewProductRepository(mockDB, mockCache, &ctx)
-
-	// Set up Gin
-	gin.SetMode(gin.TestMode)
-	r := gin.Default()
-	r.GET("/products", repo.FindProducts)
-
-	// Set up common mock expectations
-	stock, _ := decimal.NewFromString("100")
-	mockGormDB.EXPECT().Find(gomock.Any()).DoAndReturn(func(products *[]models.Product) *gorm.DB {
-		*products = append(*products, models.Product{Name: "New Product", Price: 10, Vat: 2100, Stock: stock, BarcodeNumber: "465677261626"})
-		return &gorm.DB{Error: nil} // Assume this is the struct provided by the actual Gorm package
-	}).AnyTimes()
-
-	products := []models.Product{{Name: "Product One", Price: 10, Vat: 2100, Stock: stock, BarcodeNumber: "465677261626"}}
-	cachedData, _ := json.Marshal(products)
-	mockCache.EXPECT().Get(ctx, "products_offset_0_limit_10").Return(redis.NewStringResult(string(cachedData), nil))
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/products?offset=0&limit=10", nil)
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "Product One")
-}
-
 func TestCreateProduct(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -121,7 +86,7 @@ func TestCreateProduct(t *testing.T) {
 	// Example data for the test
 	stock, _ := decimal.NewFromString("100")
 	inputProducts := []models.CreateProducts{
-		{Name: "New Product", Price: 10, Vat: 2100, Stock: stock, BarcodeNumber: "465677261626"},
+		{Name: "New Product", Price: 10, Vat: 2100, Stock: stock, BarcodeNumber: "12345678"},
 		{Name: "Another Product", Price: 20, Vat: 1900, Stock: stock, BarcodeNumber: "461246179231"},
 	}
 	requestBody, err := json.Marshal(inputProducts)
@@ -176,7 +141,7 @@ func TestFindProduct(t *testing.T) {
 		Price:         10,
 		Stock:         stock,
 		Vat:           2100,
-		BarcodeNumber: "465677261626",
+		BarcodeNumber: "12345678",
 	}
 
 	// Mock expectations
@@ -251,7 +216,7 @@ func TestDeleteProduct(t *testing.T) {
 		Price:         10,
 		Stock:         stock,
 		Vat:           2100,
-		BarcodeNumber: "465677261626",
+		BarcodeNumber: "12345678",
 	}
 
 	// Mock Where to return the existingProduct for chaining

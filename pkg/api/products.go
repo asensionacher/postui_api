@@ -53,23 +53,10 @@ func (r *productRepository) Healthcheck(c *gin.Context) {
 	c.JSON(http.StatusOK, "ok")
 }
 
-// FindProducts godoclet response = client
-            .post("http://localhost:8001/api/v1/orders")
-            .header("Authorization", format!("Bearer {}", token))
-            .json(&order)
-            .send()
-            .await?;
-
-        match response.status() {
-            StatusCode::CREATED => {
-                *state.cart.lock().await = Vec::new();
-                Ok(())
-            }
-            status => {
-                let body = response.text().await?;
-                Err(anyhow::anyhow!("Checkout failed ({}): {}", status, body))
-            }
-        }
+// FindProducts godoc
+// @Summary Get all products with pagination
+// @Description Get a list of all products with optional pagination
+// @Tags products
 // @Security JwtAuth
 // @Produce json
 // @Param offset query int false "Offset for pagination" default(0)
